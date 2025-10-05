@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechnoBot</title>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e1e2f 0%, #2c2c3f 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        color: #e0e0e0;
+    }
+
+    .chat-container {
+        background: #2c2c3f;
+        padding: 25px;
+        border-radius: 18px;
+        width: 100%;
+        max-width: 450px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #a0a0ff;
+        font-size: 1.8em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    #chat-box {
+        background: #3a3a50;
+        height: 350px;
+        overflow-y: auto;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 18px;
+        border: 1px solid #4f4f60;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message {
+        margin-bottom: 12px;
+        padding: 10px 15px;
+        border-radius: 18px;
+        max-width: 85%;
+        word-wrap: break-word;
+        line-height: 1.4;
+    }
+
+    .user {
+        background: #007bff;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+    }
+
+    .bot {
+        background: #5c6bc0;
+        color: white;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+    }
+
+    .error-message {
+        background: #dc3545 !important;
+        color: white;
+        font-style: italic;
+    }
+
+    .system-message {
+        background: #6c757d !important;
+        color: white;
+        font-size: 0.9em;
+        align-self: center;
+        max-width: 95%;
+        text-align: center;
+    }
+
+    .input-area {
+        display: flex;
+        margin-bottom: 15px;
+        gap: 8px;
+    }
+
+    #message-input {
+        flex-grow: 1;
+        padding: 12px 15px;
+        border-radius: 20px;
+        border: 1px solid #5f5f70;
+        background: #4a4a60;
+        color: white;
+        outline: none;
+        font-size: 1em;
+    }
+
+    #message-input::placeholder {
+        color: #b0b0c0;
+    }
+
+    #send-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 20px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s ease;
+        min-width: 80px;
+    }
+
+    #send-btn:hover {
+        background: #0056b3;
+    }
+
+    .button-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        min-width: 120px;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
+    }
+
+    .speak-btn { background: #ff4d4d; color: white; }
+    .speak-btn:hover { background: #cc3333; }
+    .camera-btn { background: #28a745; color: white; }
+    .camera-btn:hover { background: #1f7d37; }
+    .lang-btn { background: #ffc107; color: white; }
+    .lang-btn:hover { background: #e0a800; }
+    .submit-issue-btn { background: #6f42c1; color: white; }
+    .submit-issue-btn:hover { background: #5a359b; }
+    .test-btn { background: #17a2b8; color: white; }
+    .test-btn:hover { background: #138496; }
+    .info-btn { background: #6c757d; color: white; }
+    .info-btn:hover { background: #5a6268; }
+
+    .recording {
+        background: #dc3545 !important;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+
+    .device-selector {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: #4a4a60;
+        color: white;
+        border: 1px solid #5f5f70;
+        font-size: 0.9em;
+    }
+
+    .status-bar {
+        background: #3a3a50;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 0.85em;
+        text-align: center;
+        border: 1px solid #4f4f60;
+    }
+</style>
+</head>
+<body>
+<div class="chat-container">
+    <h2>🤖 TechnoBot</h2>
+
+    <div class="status-bar" id="status-bar">
+        🔄 Loading system...
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <input type="text" id="message-input" placeholder="Type your message or use voice...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <div class="button-row">
+        <button class="action-btn speak-btn" id="speak-btn">🎤 Speak</button>
+        <button class="action-btn camera-btn" id="identify-btn">📷 Identify</button>
+    </div>
+
+    <div class="button-row" style="margin-top: 10px;">
+        <button class="action-btn lang-btn" id="lang-btn">🌐 English</button>
+        <button class="action-btn submit-issue-btn" id="issue-btn">⚠️ Report Issue</button>
+    </div>
+
+    <div class="button-row" style="margin-top: 10px;">
+        <button class="action-btn test-btn" id="test-btn">🔊 Test Voice</button>
+        <button class="action-btn info-btn" id="info-btn">ℹ️ System Info</button>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en';
+    let currentWorkerId = 'Unknown';
+    let currentWorkerName = 'Unknown';
+    let isRecording = false;
+    let audioDevices = [];
+
+    // Function to add message to chat
+    function addMessageToChat(sender, message, isError = false, isSystem = false) {
+        const chatBox = document.getElementById('chat-box');
+        const messageDiv = document.createElement('div');
+
+        if (isSystem) {
+            messageDiv.classList.add('message', 'system-message');
+        } else {
+            messageDiv.classList.add('message', sender);
+            if (isError) {
+                messageDiv.classList.add('error-message');
+            }
+        }
+
+        messageDiv.textContent = message;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Update status bar
+    function updateStatus(message, isError = false) {
+        const statusBar = document.getElementById('status-bar');
+        statusBar.textContent = message;
+        statusBar.style.color = isError ? '#ff6b6b' : '#a0a0ff';
+    }
+
+    // Load system info on startup
+    async function loadSystemInfo() {
+        try {
+            const response = await fetch('/system_info');
+            const data = await response.json();
+
+            let status = `✅ System Ready | ${data.platform} | TTS: ${data.tts_available ? '✅' : '❌'} | AI: ${data.ai_model_loaded ? '✅' : '❌'}`;
+            updateStatus(status);
+
+            // Load audio devices
+            const audioResponse = await fetch('/audio_devices');
+            const audioData = await audioResponse.json();
+            audioDevices = audioData.devices || [];
+
+            if (audioDevices.length > 0) {
+                console.log('Audio devices:', audioDevices);
+            }
+
+        } catch (error) {
+            updateStatus('❌ System info loading failed', true);
+        }
+    }
+
+    // Speak button functionality
+    document.getElementById('speak-btn').addEventListener('click', async function() {
+        if (isRecording) return;
+
+        isRecording = true;
+        const speakBtn = document.getElementById('speak-btn');
+        speakBtn.classList.add('recording');
+        speakBtn.textContent = '🔴 Recording...';
+
+        addMessageToChat('bot', '🎤 Listening... Speak now!', false, true);
+        updateStatus('🔴 Recording audio...');
+
+        try {
+            // Use first available audio device (or let system choose)
+            const deviceId = audioDevices.length > 0 ? audioDevices[0].id : null;
+            const url = deviceId ? `/stt?device=${deviceId}` : '/stt';
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.error) {
+                addMessageToChat('bot', `❌ ${data.text}`, true);
+                updateStatus('❌ Speech recognition failed', true);
+            } else if (data.text) {
+                document.getElementById('message-input').value = data.text;
+                addMessageToChat('user', data.text);
+                updateStatus(`✅ Speech recognized (${data.engine})`);
+                // Auto-send after speech recognition
+                setTimeout(() => {
+                    document.getElementById('send-btn').click();
+                }, 500);
+            } else {
+                addMessageToChat('bot', '❌ No speech detected. Please try again.', true);
+                updateStatus('❌ No speech detected', true);
+            }
+        } catch (error) {
+            addMessageToChat('bot', `❌ Speech recognition failed: ${error.message}`, true);
+            updateStatus('❌ Network error during speech recognition', true);
+        } finally {
+            isRecording = false;
+            speakBtn.classList.remove('recording');
+            speakBtn.textContent = '🎤 Speak';
+        }
+    });
+
+    // Send button functionality
+    document.getElementById('send-btn').addEventListener('click', async function() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+
+        if (message) {
+            addMessageToChat('user', message);
+            messageInput.value = '';
+            updateStatus('🔄 Processing...');
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        lang: currentLang
+                    }),
+                });
+                const data = await response.json();
+                addMessageToChat('bot', data.reply);
+                updateStatus('✅ Response generated');
+            } catch (error) {
+                addMessageToChat('bot', `❌ Chat error: ${error.message}`, true);
+                updateStatus('❌ Chat error', true);
+            }
+        }
+    });
+
+    // Enter key support
+    document.getElementById('message-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('send-btn').click();
+        }
+    });
+
+    // Language toggle
+    document.getElementById('lang-btn').addEventListener('click', function() {
+        currentLang = currentLang === 'en' ? 'hi' : 'en';
+        const buttonText = currentLang === 'en' ? '🌐 English' : '🌐 Hindi';
+        this.textContent = buttonText;
+        addMessageToChat('bot', `Language set to ${currentLang === 'en' ? 'English' : 'Hindi'}`, false, true);
+    });
+
+    // Identify worker
+    document.getElementById('identify-btn').addEventListener('click', async function() {
+        addMessageToChat('bot', '📷 Activating camera for face detection...', false, true);
+        updateStatus('📷 Looking for faces...');
+
+        try {
+            const response = await fetch('/identify');
+            const data = await response.json();
+
+            currentWorkerName = data.worker_name;
+            currentWorkerId = data.worker_id;
+
+            if (currentWorkerName === "Face Detected") {
+                addMessageToChat('bot', `✅ ${currentWorkerName}! Welcome!`);
+                updateStatus('✅ Face detected');
+            } else {
+                addMessageToChat('bot', `❌ ${currentWorkerName}`);
+                updateStatus('❌ No face detected');
+            }
+        } catch (error) {
+            addMessageToChat('bot', `❌ Face detection failed: ${error.message}`, true);
+            updateStatus('❌ Face detection error', true);
+        }
+    });
+
+    // Submit issue
+    document.getElementById('issue-btn').addEventListener('click', function() {
+        const issue = prompt("Please describe the issue you're facing:");
+        if (issue && issue.trim()) {
+            addMessageToChat('user', `Issue: ${issue}`);
+            updateStatus('🔄 Generating solution...');
+
+            fetch('/submit_issue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    worker_id: currentWorkerId,
+                    description: issue,
+                    lang: currentLang
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addMessageToChat('bot', `🔧 Solution: ${data.solution}`);
+                    updateStatus('✅ Solution provided');
+                } else {
+                    addMessageToChat('bot', `❌ ${data.message}`, true);
+                    updateStatus('❌ Issue submission failed', true);
+                }
+            })
+            .catch(error => {
+                addMessageToChat('bot', `❌ Failed to submit issue: ${error.message}`, true);
+                updateStatus('❌ Network error', true);
+            });
+        }
+    });
+
+    // Test voice
+    document.getElementById('test-btn').addEventListener('click', function() {
+        addMessageToChat('bot', '🔊 Testing voice system...', false, true);
+        updateStatus('🔊 Testing TTS...');
+
+        fetch('/test_voice')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addMessageToChat('bot', '✅ Voice test completed! Check if you heard the audio.', false, true);
+                    updateStatus(`✅ Voice test passed (${data.audio_devices} audio devices)`);
+                } else {
+                    addMessageToChat('bot', `❌ Voice test failed: ${data.message}`, true);
+                    updateStatus('❌ Voice test failed', true);
+                }
+            })
+            .catch(error => {
+                addMessageToChat('bot', `❌ Voice test failed: ${error.message}`, true);
+                updateStatus('❌ Voice test error', true);
+            });
+    });
+
+    // System info
+    document.getElementById('info-btn').addEventListener('click', function() {
+        fetch('/system_info')
+            .then(response => response.json())
+            .then(data => {
+                const info = `
+Platform: ${data.platform}
+Machine: ${data.machine}
+Audio Devices: ${data.audio_devices.length}
+TTS Available: ${data.tts_available ? 'Yes' : 'No'}
+AI Model: ${data.ai_model_loaded ? 'Loaded' : 'Not Loaded'}
+                `.trim();
+                addMessageToChat('bot', `ℹ️ System Information:\n${info}`, false, true);
+            })
+            .catch(error => {
+                addMessageToChat('bot', `❌ Failed to get system info: ${error.message}`, true);
+            });
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+        addMessageToChat('bot', '🚀 TechnoBot Starting...', false, true);
+        loadSystemInfo();
+
+        setTimeout(() => {
+            addMessageToChat('bot', 'Welcome to TechnoBot! 👋', false, true);
+            addMessageToChat('bot', 'You can:\n• Type messages\n• Use voice with 🎤 Speak\n• Detect faces with 📷 Identify\n• Report issues\n• Switch languages', false, true);
+        }, 1000);
+    });
+</script>
+</body>
+</html>
